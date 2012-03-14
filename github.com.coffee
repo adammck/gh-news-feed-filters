@@ -86,7 +86,7 @@ class Notifications
 
     .#{PREFIX}-notifications {
         margin: 5px 0 0 5px;
-        width: 229px;
+        width: 180px;
     }
 
     .#{PREFIX}-notifications table.notifications {

@@ -1,8 +1,14 @@
 PREFIX = "amck"
 
 
+class Ajax
+  csrf_token: ->
+    
+
+  post: (url) ->
+
 class Repo
-  constructor: (@name) ->
+  constructor: (@name, @is_watched) ->
 
   key: ->
     PREFIX + @name
@@ -11,7 +17,9 @@ class Repo
     val.join " "
 
   unpack: (val) ->
-    if val? and val isnt "" then val.split(/\s+/) else []
+    if val? and val isnt ""
+      val.split(/\s+/)
+    else []
 
   get: ->
     @unpack(localStorage.getItem(@key()))
@@ -20,12 +28,35 @@ class Repo
     localStorage.setItem(@key(), @pack(val))
 
   get_notify: (event) ->
-    event not in @get()
+    event in @get()
 
   set_notify: (event, value) ->
     s = (e for e in @get() when e isnt event)
-    s.push(event) unless value
+    s.push(event) if value
     @set(s)
+
+    if (s.length > 0) then @watch() else @unwatch()
+
+  csrf_token: ->
+    $('meta[name="csrf-token"]').attr("content")
+
+  toggle_watch: ->
+    $.ajax({
+      type: "POST",
+      url: @name + "/toggle_watch",
+      headers: { "X-CSRF-Token": @csrf_token() }
+    })
+
+  watch: ->
+    unless @is_watched
+      @toggle_watch()
+      @is_watched = true
+
+  unwatch: ->
+    if @is_watched
+      @toggle_watch()
+      @is_watched = false
+
 
 
 class Notifications
@@ -146,6 +177,9 @@ class Notifications
 
 
 if $(".repohead").length
-  repo = new Repo $(".js-current-repository").attr("href")
+  name = $(".js-current-repository").attr("href")
+  is_watched = $(".watch-button-container").hasClass("on")
+  repo = new Repo name, is_watched
+
   notifications = new Notifications repo, document
   notifications.inject();

@@ -1,17 +1,37 @@
-PREFIX = "amck"
+DEBUG = true
+
+log = (args...) ->
+  console.log(args...) if DEBUG
+
+on_repo_page = ->
+  $(".repohead").length > 0
 
 
-class Ajax
-  csrf_token: ->
-    
+init = ->
+  if on_repo_page()
+    new RepoPage
 
-  post: (url) ->
 
-class Repo
-  constructor: (@name, @is_watched) ->
+
+
+# Models
+
+class Event
+  constructor: (@name, @caption) ->
+
+class FilterSet
+  constructor: (@repo_name) ->
+
+  is_filtered: (event_name) ->
+    event_name in @get_item()
+
+  update: (event_name, is_filtered) ->
+    s = (e for e in @get_item() when e isnt event_name)
+    s.push(event_name) if is_filtered
+    @set_item(s)
 
   key: ->
-    PREFIX + @name
+    "amck-gh-filter" + @repo_name
 
   pack: (val) ->
     val.join " "
@@ -21,165 +41,140 @@ class Repo
       val.split(/\s+/)
     else []
 
-  get: ->
+  get_item: ->
     @unpack(localStorage.getItem(@key()))
 
-  set: (val) ->
+  set_item: (val) ->
     localStorage.setItem(@key(), @pack(val))
 
-  get_notify: (event) ->
-    event in @get()
-
-  set_notify: (event, value) ->
-    s = (e for e in @get() when e isnt event)
-    s.push(event) if value
-    @set(s)
-
-    if (s.length > 0) then @watch() else @unwatch()
-
-  csrf_token: ->
-    $('meta[name="csrf-token"]').attr("content")
-
-  toggle_watch: ->
-    $.ajax({
-      type: "POST",
-      url: @name + "/toggle_watch",
-      headers: { "X-CSRF-Token": @csrf_token() }
-    })
-
-  watch: ->
-    unless @is_watched
-      @toggle_watch()
-      @is_watched = true
-
-  unwatch: ->
-    if @is_watched
-      @toggle_watch()
-      @is_watched = false
 
 
 
-class Notifications
-  constructor: (@repo, @doc) ->
+# Views
+
+class RepoPage
+  constructor: ->
+    filter_set = new FilterSet(@repo_name())
+    new FilterButton(filter_set).inject()
+
+  repo_name: ->
+    $(".js-current-repository").attr("href")
+
+
+
+
+# Controls
+
+class FilterButton
+  constructor: (@filter_set) ->
+
+  inject: ->
+    element = $(@html())
+    @bind_events(element)
+    $("head").append "<style>#{@css()}</style>"
+    $("li.watch-button-container").after(element)
+
+  click: (element) ->
+    @filter_set.update(element.value, element.checked)
+
+  bind_events: (container) ->
+    $("table.notifications", container).delegate "input", "change", (event) =>
+      @click(event.target)
+
+  html: ->
+    """
+    <li class="amck-gh-filter context-menu-container js-menu-container">
+      <a href="#" class="minibutton switcher js-menu-target"><span>
+        Filters
+      </span></a>
+
+      <div class="context-pane js-menu-content">
+        <a href="javascript:;" class="close js-menu-close"></a>
+        <div class="context-title">Filter Events</div>
+        <div class="context-body">
+          <table class="notifications">
+            #{@rows()}
+          </table>
+          <div class="help">
+            Select event types to filter
+            them from your news feed
+          </div>
+        </div>
+      </div>
+    </li>
+    """
+
+  rows: ->
+    (@row(e) for e in events).join("\n")
+
+  row: (event) ->
+    """
+    <tr>
+      <td><label for="amck-#{event.name}">#{event.caption}</td>
+      <td class="checkbox">#{@checkbox(event)}</td>
+    </tr>
+    """
 
   checkbox: (event) ->
-    checked = if @repo.get_notify(event) then "checked" else ""
-    "<input type='checkbox' id='#{PREFIX}-chk-#{event}' value='#{event}' #{checked}>"
+    checked = if @filter_set.is_filtered(event.name) then "checked" else ""
+    "<input type='checkbox' id='amck-#{event.name}' value='#{event.name}' #{checked}>"
 
-  attach_events: (container) ->
-    container.delegate "input", "change", (event) =>
-      t = $(event.target)
-      @repo.set_notify(t.val(), t.is(":checked"))
-
-  injectCSS: ->
-    $("head", @doc).append "<style>#{@CSS()}</style>"
-
-  $container: ->
-    $("li.watch-button-container", @doc)
-
-  $button: ->
-    $("a.watch-button", @$container())
-
-  hijack_button: ->
-    @$button().
-      removeAttr("data-method").
-      removeAttr("data-remote").
-      attr("href", "#")
-
-    @$container().
-      addClass("context-menu-container js-menu-container").
-      removeClass("js-toggler-container on")
-
-    @$button().
-      removeClass("js-toggler-target").
-      addClass("switcher js-menu-target")
-
-  inject: () ->
-    @injectCSS()
-    x = $(@HTML())
-    @attach_events(x)
-    @hijack_button()
-    @$container().append(x)
-
-  CSS: ->
+  css: ->
     """
-    .pagehead .title-actions-bar {
-        overflow: visible;
+    /* Patch the page header to allow the repo actions bar to contain menus. */
+    .pagehead .title-actions-bar           { overflow: visible; }
+    .pagehead.repohead ul.pagehead-actions { top: -2px; }
+    .pagehead h1                           { float: left; }
+
+
+    /* The drop-down notifications menu. */
+
+    .amck-gh-filter .minibutton {
+      padding-left: 0;
     }
 
-    .pagehead h1 {
-        float: left;
+    .amck-gh-filter .context-pane {
+      margin: 5px 0 0 95px;
+      width: 180px;
     }
 
-    .pagehead.repohead ul.pagehead-actions {
-        top: -2px;
+    .amck-gh-filter table.notifications {
+      margin-bottom: 0;
     }
 
-    .#{PREFIX}-notifications {
-        margin: 5px 0 0 5px;
-        width: 180px;
+    .amck-gh-filter table.notifications td {
+      padding: 5px 0;
+      font-weight: normal;
     }
 
-    .#{PREFIX}-notifications table.notifications {
-        margin-bottom: 0;
+    .amck-gh-filter table.notifications tr:first-child td {
+      padding-top: 0;
+    }
+    
+    .amck-gh-filter table.notifications tr:last-child td {
+      border-bottom-color: #eee;
     }
 
-    .#{PREFIX}-notifications table.notifications td {
-        padding: 5px 0;
-        font-weight: normal;
-    }
-
-    .#{PREFIX}-notifications table.notifications tr:first-child td {
-        padding-top: 0;
-    }
-
-    .#{PREFIX}-notifications table.notifications tr:last-child td {
-        border-bottom: none;
-        padding-bottom: 0;
+    .amck-gh-filter div.help {
+      padding: 5px 10px 0 10px;
+      text-align: center;
+      font-weight: normal;
+      font-size: 11px;
+      color: #aaa;
     }
     """
 
-  HTML: ->
-    """
-    <div class="#{PREFIX}-notifications context-pane js-menu-content">
-      <a href="javascript:;" class="close js-menu-close"></a>
-      <div class="context-title">Notifications</div>
-      <div class="context-body">
-        <table class="notifications">
-          <tr>
-            <td><label for="#{PREFIX}-chk-push">Pushes</td>
-            <td class="checkbox">#{this.checkbox("push")}</td>
-          </tr>
-          <tr>
-            <td><label for="#{PREFIX}-chk-branch">Branches</td>
-            <td class="checkbox">#{this.checkbox("branch")}</td>
-          </tr>
-          <tr>
-            <td><label for="#{PREFIX}-chk-tag">Tags</td>
-            <td class="checkbox">#{this.checkbox("tag")}</td>
-          </tr>
-          <tr>
-            <td><label for="#{PREFIX}-chk-issue">Issues</td>
-            <td class="checkbox">#{this.checkbox("issue")}</td>
-          </tr>
-          <tr>
-            <td><label for="#{PREFIX}-chk-pull">Pull Requests</td>
-            <td class="checkbox">#{this.checkbox("pull")}</td>
-          </tr>
-          <tr>
-            <td><label for="#{PREFIX}-chk-wiki">Wiki Updates</td>
-            <td class="checkbox">#{this.checkbox("wiki")}</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    """
 
 
-if $(".repohead").length
-  name = $(".js-current-repository").attr("href")
-  is_watched = $(".watch-button-container").hasClass("on")
-  repo = new Repo name, is_watched
 
-  notifications = new Notifications repo, document
-  notifications.inject();
+events = [
+  new Event "push",   "Pushes"
+  new Event "branch", "Branches"
+  new Event "tag",    "Tags"
+  new Event "issue",  "New Issues"
+  new Event "pull",   "Pull Requests"
+  new Event "wiki",   "Wiki Updates"
+]
+
+init()
+

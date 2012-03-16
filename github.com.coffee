@@ -6,10 +6,16 @@ log = (args...) ->
 on_repo_page = ->
   $(".repohead").length > 0
 
+on_news_feed_page = ->
+  $("#dashboard > .news").length > 0
+
 
 init = ->
   if on_repo_page()
     new RepoPage
+
+  else if on_news_feed_page()
+    new NewsFeedPage
 
 
 
@@ -17,18 +23,18 @@ init = ->
 # Models
 
 class Event
-  constructor: (@name, @caption) ->
+  constructor: (@caption, @name) ->
 
 class FilterSet
   constructor: (@repo_name) ->
 
   is_filtered: (event_name) ->
-    event_name in @get_item()
+    event_name in @get_items()
 
   update: (event_name, is_filtered) ->
-    s = (e for e in @get_item() when e isnt event_name)
+    s = (e for e in @get_items() when e isnt event_name)
     s.push(event_name) if is_filtered
-    @set_item(s)
+    @set_items(s)
 
   key: ->
     "amck-gh-filter" + @repo_name
@@ -41,10 +47,10 @@ class FilterSet
       val.split(/\s+/)
     else []
 
-  get_item: ->
+  get_items: ->
     @unpack(localStorage.getItem(@key()))
 
-  set_item: (val) ->
+  set_items: (val) ->
     localStorage.setItem(@key(), @pack(val))
 
 
@@ -60,7 +66,9 @@ class RepoPage
   repo_name: ->
     $(".js-current-repository").attr("href")
 
-
+class NewsFeedPage
+  constructor: ->
+    new NewsFeedFilter().inject()
 
 
 # Controls
@@ -165,16 +173,37 @@ class FilterButton
     """
 
 
+class NewsFeedFilter
+  inject: ->
+    @$items().each (i, element) =>
+      event_name = element.className.replace /alert\s+/, ""
+      if @filter_set(element).is_filtered(event_name)
+        $(element).hide()
+
+  filter_set: (element) ->
+    new FilterSet(@repo_name(element))
+
+  repo_name: (element) ->
+    links = $("div.title > a", element)
+    $(links[links.length - 1]).attr("href")
+
+  $items: ->
+    $("#dashboard > .news > .alert")
 
 
 events = [
-  new Event "push",   "Pushes"
-  new Event "branch", "Branches"
-  new Event "tag",    "Tags"
-  new Event "issue",  "New Issues"
-  new Event "pull",   "Pull Requests"
-  new Event "wiki",   "Wiki Updates"
+  new Event "Pushed",               "push"
+  new Event "Forked",               "fork"
+  new Event "Branch/Tag Created",   "create"
+  new Event "Branch/Tag Deleted ",  "delete"
+  new Event "Commit Commented",     "push"
+  new Event "Issue Opened",         "issues_opened"
+  new Event "Issue Repened",        "issues_reopened"
+  new Event "Issue Commented",      "issues_comment"
+  new Event "Issue Closed",         "issues_closed"
+  new Event "Watched",              "watch_started"
+  new Event "Member Added",         "member_add"
+  new Event "Wiki Updated",         "gollum"
 ]
 
 init()
-

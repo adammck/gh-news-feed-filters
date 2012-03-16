@@ -172,9 +172,23 @@ class FilterButton
 
 class NewsFeedFilter
   inject: ->
+    $("head").append "<style>#{@css()}</style>"
     @rebind_events()
+    @inject_counter()
     @apply_to(@$alerts())
     @maybe_load_more()
+
+  inject_counter: ->
+    @$news().prepend("""
+      <div class="amck-gh-filter-counter">
+        Filtered <span>0</span> events
+        <a href="">Show all</a>
+      </div>
+    """)
+
+    @$news().find(".amck-gh-filter-counter a").click (event) =>
+      @$news().find(".alert:hidden").show()
+      event.preventDefault()
 
   rebind_events: ->
     @$news().delegate ".ajax_paginate", "click", (event) =>
@@ -202,12 +216,16 @@ class NewsFeedFilter
         })
 
   apply_to: (items) ->
+    filtered = 0
+
     items.each (i, element) =>
       event_name = element.className.replace /alert\s+/, ""
       if @filter_set(element).is_filtered(event_name)
-        #console.log "Filtering: #{event_name} on #{@repo_name(element)}"
-        #$(element).css "opacity", 0.2
-        $(element).remove()
+        $(element).css "opacity", 0.4
+        $(element).hide()
+        filtered++
+
+    @increment_counter(filtered)
 
   maybe_load_more: ->
     if @$alerts().length < 20
@@ -217,7 +235,11 @@ class NewsFeedFilter
     $("#dashboard > .news")
 
   $alerts: ->
-    @$news().find(".alert")
+    @$news().find(".alert:visible")
+
+  increment_counter: (n) ->
+    span = @$news().find(".amck-gh-filter-counter span")
+    span.html(parseInt(span.html(), 10) + n)
 
   filter_set: (element) ->
     new FilterSet(@repo_name(element))
@@ -225,6 +247,27 @@ class NewsFeedFilter
   repo_name: (element) ->
     links = $("div.title > a", element)
     $(links[links.length - 1]).attr("href")
+
+  css: ->
+    """
+    .amck-gh-filter-counter {
+      border: 1px solid #eee;
+      border-radius: 5px;
+      background: #f8f8f8;
+      font-size: 12px;
+      color: #333;
+      margin-bottom: 25px;
+      padding: 10px;
+    }
+
+    .amck-gh-filter-counter span {
+      font-weight: bold;
+    }
+
+    .amck-gh-filter-counter a {
+      float: right;
+    }
+    """
 
 
 

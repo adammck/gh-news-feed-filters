@@ -1,8 +1,3 @@
-DEBUG = true
-
-log = (args...) ->
-  console.log(args...) if DEBUG
-
 on_repo_page = ->
   $(".repohead").length > 0
 
@@ -22,8 +17,10 @@ init = ->
 
 # Models
 
+
 class Event
   constructor: (@caption, @name) ->
+
 
 class FilterSet
   constructor: (@repo_name) ->
@@ -58,6 +55,7 @@ class FilterSet
 
 # Views
 
+
 class RepoPage
   constructor: ->
     filter_set = new FilterSet(@repo_name())
@@ -66,12 +64,11 @@ class RepoPage
   repo_name: ->
     $(".js-current-repository").attr("href")
 
+
 class NewsFeedPage
   constructor: ->
     new NewsFeedFilter().inject()
 
-
-# Controls
 
 class FilterButton
   constructor: (@filter_set) ->
@@ -175,10 +172,52 @@ class FilterButton
 
 class NewsFeedFilter
   inject: ->
-    @$items().each (i, element) =>
+    @rebind_events()
+    @apply_to(@$alerts())
+    @maybe_load_more()
+
+  rebind_events: ->
+    @$news().delegate ".ajax_paginate", "click", (event) =>
+      event.stopPropagation()
+      event.preventDefault()
+
+      link = $(event.target)
+      div = link.parent ".ajax_paginate"
+
+      unless div.hasClass "loading"
+        div.addClass "loading"
+
+        $.ajax({
+          type: "GET"
+          url: link.attr "href"
+
+          complete: =>
+            div.removeClass "loading"
+
+          success: (data) =>
+            new_items = $("<div>").append(data).children()
+            @apply_to(new_items)
+            div.replaceWith new_items
+            @maybe_load_more()
+        })
+
+  apply_to: (items) ->
+    items.each (i, element) =>
       event_name = element.className.replace /alert\s+/, ""
       if @filter_set(element).is_filtered(event_name)
-        $(element).hide()
+        #console.log "Filtering: #{event_name} on #{@repo_name(element)}"
+        #$(element).css "opacity", 0.2
+        $(element).remove()
+
+  maybe_load_more: ->
+    if @$alerts().length < 20
+      @$news().find(".ajax_paginate a").click()
+
+  $news: ->
+    $("#dashboard > .news")
+
+  $alerts: ->
+    @$news().find(".alert")
 
   filter_set: (element) ->
     new FilterSet(@repo_name(element))
@@ -187,8 +226,7 @@ class NewsFeedFilter
     links = $("div.title > a", element)
     $(links[links.length - 1]).attr("href")
 
-  $items: ->
-    $("#dashboard > .news > .alert")
+
 
 
 events = [

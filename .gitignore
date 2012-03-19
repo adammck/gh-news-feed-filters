@@ -1,1 +1,7 @@
-github.com.js
+.sass-cache
+ext/jquery.js
+ext/script.js
+ext/style.css
+ext.crx
+ext.pem
+builds

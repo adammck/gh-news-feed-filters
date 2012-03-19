@@ -1,0 +1,67 @@
+div.repohead div.title-actions-bar {
+  overflow: visible;
+
+  h1 {
+    float: left;
+  }
+
+  ul.pagehead-actions {
+    top: -2px;
+  }
+}
+
+
+.amck-gh-filter {
+  .minibutton {
+    padding-left: 0;
+  }
+
+  .context-pane {
+    margin: 5px 0 0 95px;
+    width: 180px;
+  }
+
+  table.notifications {
+    margin-bottom: 0;
+
+    td {
+      padding: 5px 0;
+      font-weight: normal;
+    }
+
+    tr:first-child td {
+      padding-top: 0;
+    }
+
+    tr:last-child td {
+      border-bottom-color: #eee;
+    }
+  }
+
+  div.help {
+    padding: 5px 10px 0 10px;
+    text-align: center;
+    font-weight: normal;
+    font-size: 11px;
+    color: #aaa;
+  }
+}
+
+
+.amck-gh-filter-counter {
+  border: 1px solid #eee;
+  border-radius: 5px;
+  background: #f8f8f8;
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 25px;
+  padding: 10px;
+
+  span {
+    font-weight: bold;
+  }
+
+  a {
+    float: right;
+  }
+}

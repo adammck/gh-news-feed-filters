@@ -76,7 +76,6 @@ class FilterButton
   inject: ->
     element = $(@html())
     @bind_events(element)
-    $("head").append "<style>#{@css()}</style>"
     $("li.watch-button-container").after(element)
 
   click: (element) ->
@@ -124,55 +123,9 @@ class FilterButton
     checked = if @filter_set.is_filtered(event.name) then "checked" else ""
     "<input type='checkbox' id='amck-#{event.name}' value='#{event.name}' #{checked}>"
 
-  css: ->
-    """
-    /* Patch the page header to allow the repo actions bar to contain menus. */
-    .pagehead .title-actions-bar           { overflow: visible; }
-    .pagehead.repohead ul.pagehead-actions { top: -2px; }
-    .pagehead h1                           { float: left; }
-
-
-    /* The drop-down notifications menu. */
-
-    .amck-gh-filter .minibutton {
-      padding-left: 0;
-    }
-
-    .amck-gh-filter .context-pane {
-      margin: 5px 0 0 95px;
-      width: 180px;
-    }
-
-    .amck-gh-filter table.notifications {
-      margin-bottom: 0;
-    }
-
-    .amck-gh-filter table.notifications td {
-      padding: 5px 0;
-      font-weight: normal;
-    }
-
-    .amck-gh-filter table.notifications tr:first-child td {
-      padding-top: 0;
-    }
-    
-    .amck-gh-filter table.notifications tr:last-child td {
-      border-bottom-color: #eee;
-    }
-
-    .amck-gh-filter div.help {
-      padding: 5px 10px 0 10px;
-      text-align: center;
-      font-weight: normal;
-      font-size: 11px;
-      color: #aaa;
-    }
-    """
-
 
 class NewsFeedFilter
   inject: ->
-    $("head").append "<style>#{@css()}</style>"
     @rebind_events()
     @inject_counter()
     @apply_to(@$alerts())
@@ -247,27 +200,6 @@ class NewsFeedFilter
   repo_name: (element) ->
     links = $("div.title > a", element)
     $(links[links.length - 1]).attr("href")
-
-  css: ->
-    """
-    .amck-gh-filter-counter {
-      border: 1px solid #eee;
-      border-radius: 5px;
-      background: #f8f8f8;
-      font-size: 12px;
-      color: #333;
-      margin-bottom: 25px;
-      padding: 10px;
-    }
-
-    .amck-gh-filter-counter span {
-      font-weight: bold;
-    }
-
-    .amck-gh-filter-counter a {
-      float: right;
-    }
-    """
 
 
 

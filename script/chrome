@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ $(uname) == "Darwin" ]; then
+  if [ -f $(pwd)/ext.pem ]; then EXT_KEY="--pack-extension-key=$(pwd)/ext.pem"; fi
+  /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --pack-extension=$(pwd)/ext $EXT_KEY
+
+else
+  echo "Sorry, only OSX is supported right now."
+  echo "Please submit a pull request!"
+  exit
+fi

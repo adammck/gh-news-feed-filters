@@ -1,3 +1,11 @@
 #!/bin/sh
 
-coffee --compile github.com.coffee
+JQ_URL=http://code.jquery.com/jquery-1.7.1.min.js
+JQ_DEST=ext/jquery.js
+
+if [ ! -e $JQ_DEST ]; then
+  wget --quiet --output-document=$JQ_DEST $JQ_URL
+fi
+
+sass --style compressed style.scss > ext/style.css
+coffee --output ext --compile script.coffee

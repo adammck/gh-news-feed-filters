@@ -1,0 +1,14 @@
+{
+  "name": "Fix GitHub News Feed",
+  "description": "Add per-repo event filtering to GitHub's news feed.",
+  "version": "0.1",
+
+  "run_at": "document_end",
+  "content_scripts": [
+    {
+      "matches": ["https://github.com/*"],
+      "js": ["jquery.js", "script.js"],
+      "css": ["style.css"]
+    }
+  ]
+}

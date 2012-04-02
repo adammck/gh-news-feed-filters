@@ -1,23 +1,18 @@
+// Patch the Title Action Bar (which contains the Watch, Fork, etc. buttons) to
+// allow it to contain context menus. Without this, they're cropped.
 div.repohead div.title-actions-bar {
   overflow: visible;
-
-  h1 {
-    float: left;
-  }
-
-  ul.pagehead-actions {
-    top: -2px;
-  }
 }
 
 
-.amck-gh-filter {
+// Alerts menu
+.amck-filters-button-container {
   .minibutton {
     padding-left: 0;
   }
 
   .context-pane {
-    margin: 5px 0 0 95px;
+    margin: 5px 0 0 81px;
     width: 180px;
   }
 
@@ -48,6 +43,32 @@ div.repohead div.title-actions-bar {
 }
 
 
+// Filtered alert
+.news .alert.amck-filter {
+  display: none;
+  opacity: 0.5;
+}
+
+
+// Filter This Alert toggler
+.amck-filter-this {
+  position: absolute;
+  display: none;
+  top: 16px;
+  left: 0;
+  width: 16px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: bold;
+  color: #999;
+
+  div.alert:hover & {
+    display: block;
+  }
+}
+
+
+// Filtered %d Alerts bar
 .amck-gh-filter-counter {
   border: 1px solid #eee;
   border-radius: 5px;

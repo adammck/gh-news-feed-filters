@@ -8,4 +8,8 @@ if [ ! -e $JQ_DEST ]; then
 fi
 
 sass --style compressed style.scss > ext/style.css
-coffee --output ext --compile script.coffee
+coffee --lint --join ext/script.js --compile\
+  src/models/*.coffee\
+  src/views/*.coffee\
+  src/controllers/*.coffee\
+  src/init.coffee

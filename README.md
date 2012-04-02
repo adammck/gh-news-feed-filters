@@ -1,33 +1,47 @@
-This is a Chrome extension to add per-repo event filtering to GitHub's news
-feed. It adds a **Filters** drop-down after the **Watch** button, allowing you
-to select which events which you're not interested in. Then those events are
-removed (on the client-side) from your feed. It looks something like:
+This is a Chrome extension to add per-repo alert filtering to GitHub. It
+supplements the existing **Watch** button by adding an **Alerts** drop-down,
+allowing you to uncheck alerts to filter them (on the client-side) from your
+news feed. It looks something like:
 
-![Screenshot of the Filters drop-down](http://i.imgur.com/eTpKu.png)
+![Screenshots of the GitHub News Feed Filters] [screenshots]
+
 
 ### Installation
 
-Just click to
-[download the extension](https://github.com/downloads/adammck/fix-github-news-feed/fix-github-news-feed.crx)
-in Chrome. It's not on the web store (yet).
-
-
-### Development Requirements
-
-* [coffeescript](http://coffeescript.org)
-* [scss](http://sass-lang.com)
+Just click to [download the extension] [download] in Chrome. It's not on the
+[Chrome Web Store] [webstore] yet.
 
 
 ### Building
 
+If you want to hack on this thing, you'll have to build it locally, and add the
+`ext` directory as an "unpacked extension" in Chrome. You'll need [coffeescript]
+[coffee] and [scss] [scss].
+
 ```bash
-$ git clone https://github.com/adammck/fix-github-news-feed.git
-$ cd fix-github-news-feed
+$ git clone git://github.com/adammck/gh-news-feed-filters.git
+$ cd gh-news-feed-filters
 $ script/build
+```
+
+To build an actual `.crx` extension:
+
+```bash
 $ script/chrome
 ```
 
 ### License
 
-[fix-github-news-feed](https://github.com/adammck/fix-github-news-feed) is free
-software, available under the MIT license.
+[GitHub News Feed Filters] [repo] is free software, available under [the MIT
+license] [license].
+
+
+
+
+[repo]:        https://github.com/adammck/gh-news-feed-filters
+[license]:     https://raw.github.com/adammck/gh-news-feed-filters/master/LICENSE
+[download]:    https://github.com/downloads/adammck/gh-news-feed-filters/gh-news-feed-filters.crx
+[screenshots]: http://i.imgur.com/jAOjo.png
+[webstore]:    https://chrome.google.com/webstore
+[coffee]:      http://coffeescript.org
+[scss]:        http://sass-lang.com

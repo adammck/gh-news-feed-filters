@@ -1,7 +1,17 @@
-// Patch the Title Action Bar (which contains the Watch, Fork, etc. buttons) to
-// allow it to contain context menus. Without this, they're cropped.
-div.repohead div.title-actions-bar {
-  overflow: visible;
+div.repohead {
+
+  // Patch the Title Action Bar (which contains the Watch, Fork, etc. buttons)
+  // to allow it to contain context menus. Without this, they're cropped.
+  div.title-actions-bar {
+    overflow: visible;
+  }
+
+  // Patch the Action Buttons Container to sit above the menu overlay. Without
+  // this, the overlay is above the alerts menu, which renders it unclickable.
+  // TODO: This is a crappy fix.
+  ul.pagehead-actions {
+    z-index: 21;
+  }
 }
 
 

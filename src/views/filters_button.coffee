@@ -14,7 +14,9 @@ class EventsButton
       </span></a>
   
       <div class="context-pane js-menu-content">
-        <a href="javascript:;" class="close js-menu-close"></a>
+        <a href="javascript:;" class="close js-menu-close">
+          <span class="mini-icon remove-close"></span>
+        </a>
         <div class="context-title">Configure Alerts</div>
         <div class="context-body">
           <table class="notifications">

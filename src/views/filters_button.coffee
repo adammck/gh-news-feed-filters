@@ -3,6 +3,7 @@ class EventsButton
     el = @buildElements()
     @bindEvents(el)
     @inject(el)
+    @positionContextPane(el)
 
   # Return the HTML of this button.
   # Adapted from the GitHub branch switcher.
@@ -32,6 +33,10 @@ class EventsButton
       .find("table.notifications")
         .append(@_rows() ...)
       .end()
+
+  positionContextPane: (element) ->
+    left = element.find("a.js-menu-target").position().left
+    element.find("div.js-menu-content").css("left", left)
 
   bindEvents: (element) ->
     element.on "change", "table.notifications input", @_checkbox_change

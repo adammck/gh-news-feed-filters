@@ -27,7 +27,7 @@ div.repohead {
   }
 
   table.notifications {
-    margin-bottom: 0;
+    margin-bottom: 5px;
 
     td {
       padding: 5px 0;
@@ -43,9 +43,24 @@ div.repohead {
     }
   }
 
+  // There doesn't seem to be an established style for select all/none buttons
+  // on GitHub, so I'm just using two links. Maybe update this later.
+  div.select {
+    float: right;
+    text-align: right;
+    padding-left: 8px;
+    border-left: 1px dotted #ddd;
+
+    a {
+      display: block;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
   div.help {
-    padding: 5px 10px 0 10px;
-    text-align: center;
     font-weight: normal;
     font-size: 11px;
     color: #aaa;

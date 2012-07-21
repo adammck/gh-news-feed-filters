@@ -13,7 +13,7 @@ class EventsButton
       <a href="#" class="minibutton switcher js-menu-target"><span>
         Alerts
       </span></a>
-  
+
       <div class="context-pane js-menu-content">
         <a href="javascript:;" class="close js-menu-close">
           <span class="mini-icon remove-close"></span>
@@ -22,6 +22,10 @@ class EventsButton
         <div class="context-body">
           <table class="notifications">
           </table>
+          <div class="select">
+            <a href="" class="all">All</a>
+            <a href="" class="none">None</a>
+          </div>
           <div class="help">
             Select the alerts you wish
             to see in your news feed.
@@ -39,7 +43,10 @@ class EventsButton
     element.find("div.js-menu-content").css("left", left)
 
   bindEvents: (element) ->
-    element.on "change", "table.notifications input", @_checkbox_change
+    checkboxes = element.find("table.notifications input")
+    element.on "change", checkboxes.selector, @_checkbox_change
+    element.on "click", "div.select a.all", @_set_checked_func(checkboxes, true)
+    element.on "click", "div.select a.none", @_set_checked_func(checkboxes, false)
 
   inject: (element) ->
     $("li.watch-button-container").after(element)
@@ -70,3 +77,9 @@ class EventsButton
     el = $(event.target)
     is_filtered = not el.is(":checked")
     el.data("repoEvent").filtered(is_filtered)
+
+  _set_checked_func: (checkboxes, is_checked) ->
+    (event) ->
+      checkboxes.attr("checked", is_checked)
+      checkboxes.change()
+      event.preventDefault()
